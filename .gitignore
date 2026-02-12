@@ -1,0 +1,36 @@
+# GeoServer Data
+geoserver_data/
+postgres_data/
+gwc_cache/
+logs/
+geoserver_extensions/
+gdal_data/
+backups/
+
+# SSL Sertifikaları
+ssl/*.pem
+ssl/*.key
+ssl/*.crt
+
+# Environment dosyaları
+.env
+
+# Docker
+.docker/
+
+# Sistem dosyaları
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Temporary files
+*.tmp
+*.bak
+*.old
