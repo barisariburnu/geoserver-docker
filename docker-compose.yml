@@ -43,10 +43,10 @@ services:
       GEOSERVER_CSRF_DISABLED: "true"
 
       # Eklentiler için ortam değişkenleri
-      STABLE_EXTENSIONS: "${STABLE_EXTENSIONS:-vectortiles-plugin,charts-plugin,css-plugin,mbstyle-plugin,wps-plugin,importer-plugin,gdal-plugin}"
+      STABLE_EXTENSIONS: "${STABLE_EXTENSIONS:-vectortiles-plugin,charts-plugin,css-plugin,mbstyle-plugin,wps-plugin,importer-plugin,gdal-plugin,oracle-plugin}"
 
-      # Oracle için (gerekirse)
-      COMMUNITY_EXTENSIONS: "${COMMUNITY_EXTENSIONS:-oracle-plugin}"
+      # Community Extensions (isteğe bağlı)
+      # COMMUNITY_EXTENSIONS: "${COMMUNITY_EXTENSIONS:-}"
 
       # GDAL Data Path
       GDAL_CACHEMAX: "${GDAL_CACHEMAX:-512}"
