@@ -178,28 +178,86 @@ GeoServer Performans İpuçları
 EOF
 }
 
-# Oracle kurulum talimatları
+# Oracle kurulum bilgileri
 show_oracle_setup() {
     cat << 'EOF'
 ================================
-Oracle Desteği Kurulum
+Oracle Desteği
 ================================
 
-Oracle JDBC driver'ı lisans kısıtlamaları nedeniyle otomatik olarak yüklenemez.
-Manuel olarak yüklemeniz gerekiyor:
+Oracle JDBC driver'ları (ojdbc8, orai18n) Dockerfile içinde
+Maven Central'dan otomatik olarak indirilir.
 
-1. Oracle JDBC driver'ı indirin:
-   https://www.oracle.com/database/technologies/jdbc-downloads.html
-   
-2. ojdbc8.jar dosyasını şu dizine kopyalayın:
-   ./geoserver_extensions/
-   
-3. GeoServer'ı yeniden başlatın:
-   ./manage.sh restart
+ADIM 1: Docker Image Oluşturma
+-----------------------------------
+  ./manage.sh rebuild
 
-4. GeoServer web arayüzünden Oracle datastore ekleyin.
+ADIM 2: GeoServer'ı Başlatma
+-----------------------------------
+  ./manage.sh start
+
+ADIM 3: Doğrulama
+-----------------------------------
+  ./manage.sh verify-oracle
+
+ADIM 4: Oracle Store Ekleme
+-----------------------------------
+  Web arayüzünden: Data → Stores → Add new Store → Oracle NG
+  
+  Bağlantı parametreleri:
+    host:     Oracle sunucu adresi
+    port:     1521
+    database: SID veya Service Name
+    schema:   Şema adı
+    user:     Kullanıcı adı
+    passwd:   Şifre
+
+  JDBC driver sürümünü değiştirmek için:
+    docker compose build --build-arg ORACLE_JDBC_VERSION=21.9.0.0 geoserver
 
 EOF
+}
+
+# Oracle kurulumunu doğrula
+verify_oracle() {
+    print_info "Oracle kurulumu doğrulanıyor..."
+    echo ""
+
+    # Container içi kontrol
+    if docker ps --format '{{.Names}}' | grep -q "^geoserver$"; then
+        print_info "Container içi kontrol yapılıyor..."
+
+        if docker exec geoserver ls /opt/geoserver/webapps/geoserver/WEB-INF/lib/ 2>/dev/null | grep -qi "ojdbc"; then
+            print_info "✅ Oracle JDBC driver container'da mevcut"
+        else
+            print_error "❌ Oracle JDBC driver container'da bulunamadı"
+            print_info "   Docker image'ı yeniden oluşturun: ./manage.sh rebuild"
+        fi
+
+        if docker exec geoserver ls /opt/geoserver/webapps/geoserver/WEB-INF/lib/ 2>/dev/null | grep -qi "orai18n"; then
+            print_info "✅ Oracle i18n desteği container'da mevcut"
+        else
+            print_warning "⚠️  orai18n.jar container'da bulunamadı"
+        fi
+
+        if docker exec geoserver ls /opt/geoserver/webapps/geoserver/WEB-INF/lib/ 2>/dev/null | grep -qi "gt-jdbc-oracle"; then
+            print_info "✅ GeoServer Oracle eklentisi yüklü"
+        else
+            print_warning "⚠️  GeoServer Oracle eklentisi bulunamadı"
+            print_info "   COMMUNITY_EXTENSIONS=oracle-plugin ayarını kontrol edin"
+        fi
+    else
+        print_warning "GeoServer container'ı çalışmıyor."
+        print_info "Başlatmak için: ./manage.sh start"
+    fi
+}
+
+# Docker image'ı yeniden oluştur
+rebuild_image() {
+    print_info "Docker image yeniden oluşturuluyor..."
+    docker-compose build --no-cache geoserver
+    print_info "Image başarıyla oluşturuldu!"
+    print_info "Yeniden başlatmak için: ./manage.sh restart"
 }
 
 # ECW kurulum talimatları
@@ -240,6 +298,8 @@ Komutlar:
   info          - Sistem bilgileri
   performance   - Performans ipuçları
   oracle        - Oracle kurulum talimatları
+  verify-oracle - Oracle kurulumunu doğrula
+  rebuild       - Docker image'ı yeniden oluştur
   ecw           - ECW kurulum talimatları
   
 Kullanım: ./manage.sh [komut]
@@ -281,6 +341,12 @@ case "${1:-}" in
         ;;
     oracle)
         show_oracle_setup
+        ;;
+    verify-oracle)
+        verify_oracle
+        ;;
+    rebuild)
+        rebuild_image
         ;;
     ecw)
         show_ecw_setup

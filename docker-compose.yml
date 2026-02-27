@@ -1,6 +1,9 @@
 services:
   geoserver:
-    image: kartoza/geoserver:2.28.2
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: geoserver-oracle:2.28.2
     container_name: geoserver
     restart: unless-stopped
     ports:

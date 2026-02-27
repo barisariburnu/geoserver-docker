@@ -75,6 +75,7 @@ GeoServer başlatıldıktan sonra:
 ```
 geoserver-setup/
 ├── docker-compose.yml          # Ana Docker Compose dosyası
+├── Dockerfile                  # Custom GeoServer image (Oracle JDBC desteği)
 ├── nginx.conf                  # Nginx konfigürasyonu
 ├── manage.sh                   # Yönetim script'i
 ├── setenv.sh                   # JVM optimizasyon ayarları
@@ -150,6 +151,7 @@ gdaladdo -r average output_cog.tif 2 4 8 16 32 64
 ### 3. Coverage Ayarları
 
 Layer yapılandırmasında:
+
 - **Tile Cache**: Etkinleştirin
 - **Tile Size**: 256x256 veya 512x512
 - **Gridset**: İhtiyacınıza göre (EPSG:4326, EPSG:3857)
@@ -190,8 +192,8 @@ CREATE TABLE public.my_spatial_data (
 );
 
 -- Spatial index
-CREATE INDEX idx_my_spatial_data_geom 
-ON public.my_spatial_data 
+CREATE INDEX idx_my_spatial_data_geom
+ON public.my_spatial_data
 USING GIST(geom);
 
 -- Örnek veri
@@ -222,20 +224,45 @@ VALUES ('Ankara', ST_SetSRID(ST_MakePoint(32.8597, 39.9334), 4326));
 
 ### Oracle Eklentisi Kurulumu
 
+Oracle JDBC driver'ları (`ojdbc8`, `orai18n`) **Dockerfile içinde Maven Central'dan otomatik indirilir**. Manuel JAR indirmeye gerek yoktur.
+
+#### 1. Docker Image Oluşturma
+
 ```bash
-# Oracle JDBC driver'ı indirin
-# https://www.oracle.com/database/technologies/jdbc-downloads.html
+# Image'ı oluşturun (Oracle JARs otomatik indirilir)
+./manage.sh rebuild
 
-# ojdbc8.jar dosyasını kopyalayın
-cp ojdbc8.jar geoserver_extensions/
-
-# Oracle eklentisi için
-# docker-compose.yml içinde COMMUNITY_EXTENSIONS değişkenini düzenleyin
-# COMMUNITY_EXTENSIONS: "oracle-plugin"
-
-# Yeniden başlatın
-./manage.sh restart
+# Farklı JDBC sürümü kullanmak için:
+docker compose build --build-arg ORACLE_JDBC_VERSION=21.9.0.0 geoserver
 ```
+
+#### 2. Doğrulama
+
+```bash
+# Oracle kurulumunu doğrulayın
+./manage.sh verify-oracle
+```
+
+#### 3. Oracle Store Ekleme
+
+GeoServer web arayüzünden: **Data** → **Stores** → **Add new Store** → **Oracle NG**
+
+Bağlantı parametreleri:
+
+- **host**: Oracle sunucu adresi
+- **port**: 1521
+- **database**: SID veya Service Name
+- **schema**: Şema adı
+- **user**: Kullanıcı adı
+- **passwd**: Şifre
+- **Expose primary keys**: true (önerilir)
+
+Connection pool ayarları:
+
+- **min connections**: 5
+- **max connections**: 20
+- **validate connections**: true
+- **Test while idle**: true
 
 ## ⚙️ Performans Optimizasyonu
 
@@ -245,8 +272,8 @@ cp ojdbc8.jar geoserver_extensions/
 
 ```yaml
 environment:
-  INITIAL_MEMORY: "4G"    # Başlangıç heap (RAM'in %25-30'u)
-  MAXIMUM_MEMORY: "8G"    # Maksimum heap (RAM'in %50-70'i)
+  INITIAL_MEMORY: "4G" # Başlangıç heap (RAM'in %25-30'u)
+  MAXIMUM_MEMORY: "8G" # Maksimum heap (RAM'in %50-70'i)
 ```
 
 ### 2. GeoServer Global Ayarları
