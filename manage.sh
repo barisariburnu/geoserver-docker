@@ -47,9 +47,9 @@ setup_directories() {
 # GeoServer başlat
 start_geoserver() {
     print_info "GeoServer başlatılıyor..."
-    docker-compose up -d
+    docker compose up -d
     
-    print_info "GeoServer başlatıldı. Loglara bakmak için: docker-compose logs -f geoserver"
+    print_info "GeoServer başlatıldı. Loglara bakmak için: docker compose logs -f geoserver"
     print_info "GeoServer web arayüzü: http://localhost:8080/geoserver"
     print_info "Varsayılan kullanıcı adı: admin"
     print_info "Varsayılan şifre: geoserver (ÖNEMLİ: Değiştirin!)"
@@ -58,25 +58,25 @@ start_geoserver() {
 # GeoServer durdur
 stop_geoserver() {
     print_info "GeoServer durduruluyor..."
-    docker-compose down
+    docker compose down
     print_info "GeoServer durduruldu!"
 }
 
 # GeoServer yeniden başlat
 restart_geoserver() {
     print_info "GeoServer yeniden başlatılıyor..."
-    docker-compose restart
+    docker compose restart
     print_info "GeoServer yeniden başlatıldı!"
 }
 
 # Logları göster
 show_logs() {
-    docker-compose logs -f geoserver
+    docker compose logs -f geoserver
 }
 
 # GeoServer durumunu göster
 status_geoserver() {
-    docker-compose ps
+    docker compose ps
 }
 
 # Cache temizle
@@ -134,7 +134,7 @@ show_info() {
     echo "Extensions: $(pwd)/geoserver_extensions"
     echo ""
     echo "Container Durumu:"
-    docker-compose ps
+    docker compose ps
     echo ""
     echo "Disk Kullanımı:"
     du -sh geoserver_data postgres_data gwc_cache 2>/dev/null || echo "Henüz veri yok"
@@ -255,7 +255,7 @@ verify_oracle() {
 # Docker image'ı yeniden oluştur
 rebuild_image() {
     print_info "Docker image yeniden oluşturuluyor..."
-    docker-compose build --no-cache geoserver
+    docker compose build --no-cache geoserver
     print_info "Image başarıyla oluşturuldu!"
     print_info "Yeniden başlatmak için: ./manage.sh restart"
 }
