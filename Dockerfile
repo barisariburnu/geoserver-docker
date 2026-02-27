@@ -7,7 +7,8 @@ LABEL description="GeoServer with Oracle Spatial/Locator support"
 ARG ORACLE_JDBC_VERSION=19.3.0.0
 ARG GEOSERVER_LIB_DIR=/opt/geoserver/webapps/geoserver/WEB-INF/lib
 
-RUN curl -fSL -o ${GEOSERVER_LIB_DIR}/ojdbc8-${ORACLE_JDBC_VERSION}.jar \
+RUN mkdir -p ${GEOSERVER_LIB_DIR} && \
+    curl -fSL -o ${GEOSERVER_LIB_DIR}/ojdbc8-${ORACLE_JDBC_VERSION}.jar \
     "https://repo1.maven.org/maven2/com/oracle/database/jdbc/ojdbc8/${ORACLE_JDBC_VERSION}/ojdbc8-${ORACLE_JDBC_VERSION}.jar" && \
     curl -fSL -o ${GEOSERVER_LIB_DIR}/orai18n-${ORACLE_JDBC_VERSION}.jar \
     "https://repo1.maven.org/maven2/com/oracle/database/nls/orai18n/${ORACLE_JDBC_VERSION}/orai18n-${ORACLE_JDBC_VERSION}.jar"
