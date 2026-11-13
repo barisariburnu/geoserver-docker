@@ -1,0 +1,195 @@
+# Coolify: Base Directory /, Compose Location /.coolify/compose.yaml, RAW mode.
+services:
+  geoserver:
+    command: null
+    entrypoint: null
+    environment:
+      GEOWEBCACHE_CACHE_DIR: ${CBS_GEOSERVER_GEOWEBCACHE_CACHE_DIR}
+      STABLE_EXTENSIONS: ${CBS_GEOSERVER_STABLE_EXTENSIONS}
+      IMAGEIO_CACHE_MEMORY_THRESHOLD: ${CBS_GEOSERVER_IMAGEIO_CACHE_MEMORY_THRESHOLD}
+      TILE_CACHE_DIR: ${CBS_GEOSERVER_TILE_CACHE_DIR}
+      MAX_FILTER_RULES: ${CBS_GEOSERVER_MAX_FILTER_RULES}
+      GDAL_DATA: ${CBS_GEOSERVER_GDAL_DATA}
+      JAI_TILE_PRIORITY: ${CBS_GEOSERVER_JAI_TILE_PRIORITY}
+      MAXIMUM_MEMORY: ${CBS_GEOSERVER_MAXIMUM_MEMORY}
+      TZ: ${CBS_GEOSERVER_TZ}
+      JAI_TILE_THREADS: ${CBS_GEOSERVER_JAI_TILE_THREADS}
+      USE_JAI_IMAGEREAD: ${CBS_GEOSERVER_USE_JAI_IMAGEREAD}
+      JAI_MOSAICING: ${CBS_GEOSERVER_JAI_MOSAICING}
+      GEOSERVER_ADMIN_PASSWORD: ${CBS_GEOSERVER_GEOSERVER_ADMIN_PASSWORD}
+      JAI_NATIVE_WARP: ${CBS_GEOSERVER_JAI_NATIVE_WARP}
+      ENABLE_JSONP: ${CBS_GEOSERVER_ENABLE_JSONP}
+      GEOSERVER_CSRF_DISABLED: ${CBS_GEOSERVER_GEOSERVER_CSRF_DISABLED}
+      INITIAL_MEMORY: ${CBS_GEOSERVER_INITIAL_MEMORY}
+      JAI_RECYCLING: ${CBS_GEOSERVER_JAI_RECYCLING}
+      GEOSERVER_ADMIN_USER: ${CBS_GEOSERVER_GEOSERVER_ADMIN_USER}
+      GDAL_CACHEMAX: ${CBS_GEOSERVER_GDAL_CACHEMAX}
+      JAI_MEMORY_THRESHOLD: ${CBS_GEOSERVER_JAI_MEMORY_THRESHOLD}
+      OPTIMIZE_LINE_WIDTH: ${CBS_GEOSERVER_OPTIMIZE_LINE_WIDTH}
+      JAI_MEMORY_CAPACITY: ${CBS_GEOSERVER_JAI_MEMORY_CAPACITY}
+      PATH: ${CBS_GEOSERVER_PATH}
+      JAVA_HOME: ${CBS_GEOSERVER_JAVA_HOME}
+      LANG: ${CBS_GEOSERVER_LANG}
+      LANGUAGE: ${CBS_GEOSERVER_LANGUAGE}
+      LC_ALL: ${CBS_GEOSERVER_LC_ALL}
+      JAVA_VERSION: ${CBS_GEOSERVER_JAVA_VERSION}
+      CATALINA_HOME: ${CBS_GEOSERVER_CATALINA_HOME}
+      TOMCAT_NATIVE_LIBDIR: ${CBS_GEOSERVER_TOMCAT_NATIVE_LIBDIR}
+      LD_LIBRARY_PATH: ${CBS_GEOSERVER_LD_LIBRARY_PATH}
+      TOMCAT_MAJOR: ${CBS_GEOSERVER_TOMCAT_MAJOR}
+      TOMCAT_VERSION: ${CBS_GEOSERVER_TOMCAT_VERSION}
+      TOMCAT_SHA512: ${CBS_GEOSERVER_TOMCAT_SHA512}
+      DEBIAN_FRONTEND: ${CBS_GEOSERVER_DEBIAN_FRONTEND}
+      OTEL_SERVICE_NAME: ${CBS_GEOSERVER_OTEL_SERVICE_NAME}
+      GEOSERVER_DATA_DIR: ${CBS_GEOSERVER_GEOSERVER_DATA_DIR}
+      FOOTPRINTS_DATA_DIR: ${CBS_GEOSERVER_FOOTPRINTS_DATA_DIR}
+      CERT_DIR: ${CBS_GEOSERVER_CERT_DIR}
+      RANDFILE: ${CBS_GEOSERVER_RANDFILE}
+      FONTS_DIR: ${CBS_GEOSERVER_FONTS_DIR}
+      GEOSERVER_HOME: ${CBS_GEOSERVER_GEOSERVER_HOME}
+      EXTRA_CONFIG_DIR: ${CBS_GEOSERVER_EXTRA_CONFIG_DIR}
+      COMMUNITY_PLUGINS_DIR: ${CBS_GEOSERVER_COMMUNITY_PLUGINS_DIR}
+      STABLE_PLUGINS_DIR: ${CBS_GEOSERVER_STABLE_PLUGINS_DIR}
+      REQUIRED_PLUGINS_DIR: ${CBS_GEOSERVER_REQUIRED_PLUGINS_DIR}
+      OTEL_DIR: ${CBS_GEOSERVER_OTEL_DIR}
+      JMX_DIR: ${CBS_GEOSERVER_JMX_DIR}
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - curl -f http://localhost:8080/geoserver/web/ || exit 1
+      timeout: 10s
+      interval: 30s
+      retries: 5
+      start_period: 1m0s
+    image: coolify-local/geoserver-docker-geoserver:${SOURCE_COMMIT:-latest}
+    ports:
+    - 8090:8080
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ${COOLIFY_DATA_ROOT}/geoserver_data
+      target: /opt/geoserver/data_dir
+      bind:
+        create_host_path: false
+    - type: bind
+      source: ${COOLIFY_DATA_ROOT}/gwc_cache
+      target: /opt/geoserver/data_dir/gwc
+      bind:
+        create_host_path: false
+    - type: bind
+      source: ${COOLIFY_DATA_ROOT}/logs
+      target: /opt/geoserver/data_dir/logs
+      bind:
+        create_host_path: false
+    - type: bind
+      source: ${COOLIFY_DATA_ROOT}/geoserver_extensions
+      target: /opt/geoserver/webapps/geoserver/WEB-INF/lib/extensions
+      bind:
+        create_host_path: false
+    - type: bind
+      source: ${COOLIFY_DATA_ROOT}/gdal_data
+      target: /usr/share/gdal
+      bind:
+        create_host_path: false
+    pull_policy: never
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    container_name: geoserver-${COOLIFY_RESOURCE_UUID}
+    build:
+      context: .
+      dockerfile: Dockerfile
+  postgis:
+    command: null
+    entrypoint: null
+    environment:
+      POSTGRES_MULTIPLE_EXTENSIONS: ${CBS_POSTGIS_POSTGRES_MULTIPLE_EXTENSIONS}
+      PGDATA: ${CBS_POSTGIS_PGDATA}
+      POSTGRES_DB: ${CBS_POSTGIS_POSTGRES_DB}
+      POSTGRES_USER: ${CBS_POSTGIS_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${CBS_POSTGIS_POSTGRES_PASSWORD}
+      PATH: ${CBS_POSTGIS_PATH}
+      GOSU_VERSION: ${CBS_POSTGIS_GOSU_VERSION}
+      LANG: ${CBS_POSTGIS_LANG}
+      PG_MAJOR: ${CBS_POSTGIS_PG_MAJOR}
+      PG_VERSION: ${CBS_POSTGIS_PG_VERSION}
+      POSTGIS_MAJOR: ${CBS_POSTGIS_POSTGIS_MAJOR}
+      POSTGIS_VERSION: ${CBS_POSTGIS_POSTGIS_VERSION}
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U geoserver
+      timeout: 5s
+      interval: 10s
+      retries: 5
+    image: postgis/postgis@sha256:abf4086c6c38e882a9fc2e70176de938cd2a9e0e4e7bf37dd55e75364bf7fae5
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ${COOLIFY_DATA_ROOT}/postgres_data
+      target: /var/lib/postgresql/data
+      bind:
+        create_host_path: false
+    pull_policy: never
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    container_name: postgis-${COOLIFY_RESOURCE_UUID}
+  nginx:
+    command: null
+    depends_on:
+      geoserver:
+        condition: service_started
+        required: true
+    entrypoint: null
+    image: coolify-local/geoserver-docker-nginx:${SOURCE_COMMIT:-latest}
+    ports:
+    - 443:443
+    - 80:80
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ${COOLIFY_DATA_ROOT}/ssl
+      target: /etc/nginx/ssl
+      bind:
+        create_host_path: false
+      read_only: true
+    pull_policy: never
+    environment:
+      PATH: ${CBS_NGINX_PATH}
+      NGINX_VERSION: ${CBS_NGINX_NGINX_VERSION}
+      PKG_RELEASE: ${CBS_NGINX_PKG_RELEASE}
+      DYNPKG_RELEASE: ${CBS_NGINX_DYNPKG_RELEASE}
+      NJS_VERSION: ${CBS_NGINX_NJS_VERSION}
+      NJS_RELEASE: ${CBS_NGINX_NJS_RELEASE}
+      ACME_VERSION: ${CBS_NGINX_ACME_VERSION}
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    healthcheck:
+      test:
+      - CMD
+      - wget
+      - -q
+      - -O
+      - /dev/null
+      - http://127.0.0.1/geoserver/ows?service=WMS&version=1.3.0&request=GetCapabilities
+      interval: 30s
+      timeout: 15s
+      start_period: 120s
+      retries: 5
+    container_name: nginx-${COOLIFY_RESOURCE_UUID}
+    build:
+      context: .
+      dockerfile: .coolify/nginx.Dockerfile
+name: ${COOLIFY_RESOURCE_UUID}
+networks:
+  default:
+    external: true
+    name: ${COOLIFY_RESOURCE_UUID}
