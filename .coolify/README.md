@@ -6,6 +6,13 @@ Yalnız kaynak kod image içine alınır. Kalıcı veri, yükleme, arşiv ve TLS
 
 Zamanlanmış veri işlerinde build tamamlandıktan sonra çalışan işin doğal olarak bitmesi beklenir; zorla SIGKILL gönderilmez. İlk legacy cron geçişi aktif iş varsa durdurulmadan ertelenir. Coolify sunucu deployment timeout değeri uzun veri işlerine uygun olmalıdır. Başarısız deployment kayıtları kontrol edilmeli ve gerekirse aynı commit yeniden yayına alınmalıdır. Zamanlayıcının normal yeniden başlatma davranışı değiştirilmez; iş mantığına yeni migration/senkronizasyon komutu eklenmez.
 
+Kalıcı veri kökü `COOLIFY_DATA_ROOT`, Nginx TLS dizini ise `COOLIFY_SSL_DIR`
+ile açıkça tanımlanmalıdır. Bu dizinleri uygulamaya ait kalıcı depolama alanında
+tutun; kaldırılmış Coolify servislerinin yapılandırma dizinlerini kullanmayın.
+`COOLIFY_SSL_DIR` zorunludur ve mevcut sertifika/yönlendirme dosyalarının bulunduğu
+dizini göstermelidir. İç içe değişken varsayımları Coolify Compose doğrulamasından
+geçmediği için kullanılmaz.
+
 ## Kurum içi HTTPS yönlendirmeleri
 
 Nginx, mevcut TLS kalıcı alanının `ingress/*.conf` dosyalarını HTTP bağlamında

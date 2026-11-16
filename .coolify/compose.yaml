@@ -153,7 +153,7 @@ services:
     restart: unless-stopped
     volumes:
     - type: bind
-      source: ${COOLIFY_SSL_DIR:-${COOLIFY_DATA_ROOT}/ssl}
+      source: ${COOLIFY_SSL_DIR}
       target: /etc/nginx/ssl
       bind:
         create_host_path: false
